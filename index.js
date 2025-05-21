@@ -109,16 +109,12 @@ function createBookCard(id, name, author, pages, read) {
     <button class="remove-button">Remove book</button>
     <button class="change-status">Change status</button>
   `;
-  el.dataset.id = id;
 
-  el.querySelector('.remove-button').addEventListener('click', (e) => {
-    const id = e.target.closest('.book-card').dataset.id;
+  el.querySelector('.remove-button').addEventListener('click', () =>
+    removeBookFromLibrary(id)
+  );
 
-    removeBookFromLibrary(id);
-  });
-
-  el.querySelector('.change-status').addEventListener('click', (e) => {
-    const id = e.target.closest('.book-card').dataset.id;
+  el.querySelector('.change-status').addEventListener('click', () => {
     const book = books.find((item) => item.id == id);
 
     book.changeReadStatus();
