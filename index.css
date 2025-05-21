@@ -1,0 +1,104 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  height: 100vh;
+}
+
+.wrapper {
+  margin: 1rem auto;
+  width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.book-card {
+  padding: 1rem;
+  border: 1px solid black;
+  text-align: center;
+}
+
+.add-button {
+  align-self: center;
+  padding: 1rem 2rem;
+}
+
+.modal-wrapper {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgb(0, 0, 0, 0.5);
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background-color: white;
+  color: black;
+  border-radius: 5px;
+  padding: 2rem;
+}
+
+.book-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.book-form fieldset {
+  border-radius: 5px;
+  padding: 0.5rem;
+}
+
+.book-form fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.form-input {
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  outline: none;
+  border: 1px solid black;
+  font-size: 0.9rem;
+}
+
+.form-input:focus {
+  border: 1px solid blue;
+}
+
+.form-input:valid {
+  border: 1px solid green;
+}
+
+.form-button {
+  padding: 0.2rem 0.5rem;
+  align-self: end;
+}
+
+.remove-button {
+  display: block;
+  margin: 1rem auto 0;
+}
