@@ -34,19 +34,15 @@ const library = (function () {
 
   books.forEach((item) => Object.setPrototypeOf(item, Book.prototype));
 
-  const getBooks = () => books;
+  const getBooks = () => [...books];
 
   const addBookToLibrary = ({ name, author, pages }) => {
     const book = new Book(name, author, pages);
     books.push(book);
-
-    uiController.renderBooks();
   };
 
   const removeBookFromLibrary = (id) => {
     books = books.filter((item) => item.id != id);
-
-    uiController.renderBooks();
   };
 
   const createBook = (e) => {
@@ -61,7 +57,6 @@ const library = (function () {
     });
 
     addBookToLibrary(bookData);
-    uiController.hideModal();
   };
 
   return { getBooks, createBook, removeBookFromLibrary };
@@ -135,7 +130,11 @@ const uiController = (function () {
       }
     });
 
-    form.addEventListener('submit', library.createBook);
+    form.addEventListener('submit', (e) => {
+      library.createBook(e);
+      modal.remove();
+      renderBooks();
+    });
 
     modal.querySelector('.modal').append(form);
 
@@ -160,9 +159,10 @@ const uiController = (function () {
     <button class="change-status">Change status</button>
   `;
 
-    el.querySelector('.remove-button').addEventListener('click', () =>
-      library.removeBookFromLibrary(id)
-    );
+    el.querySelector('.remove-button').addEventListener('click', () => {
+      library.removeBookFromLibrary(id);
+      renderBooks();
+    });
 
     el.querySelector('.change-status').addEventListener('click', () => {
       const book = library.getBooks().find((item) => item.id == id);
