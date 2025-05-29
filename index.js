@@ -1,12 +1,83 @@
 'use strict';
 
-const modalLayout = `
-    <div class="modal-wrapper">
+class Book {
+  constructor(name, author, pages) {
+    this.id = crypto.randomUUID();
+    this.name = name;
+    this.author = author;
+    this.pages = pages;
+    this.read = false;
+  }
+
+  changeReadStatus() {
+    this.read = !this.read;
+  }
+}
+
+const library = (function () {
+  let books = [
+    {
+      id: 1,
+      name: 'Harry Potter',
+      author: 'Joan Rolling',
+      pages: 295,
+      read: false,
+    },
+    {
+      id: 2,
+      name: 'The Lord of the Rings',
+      author: 'Tolkien',
+      pages: 500,
+      read: true,
+    },
+  ];
+
+  books.forEach((item) => Object.setPrototypeOf(item, Book.prototype));
+
+  const getBooks = () => books;
+
+  const addBookToLibrary = ({ name, author, pages }) => {
+    const book = new Book(name, author, pages);
+    books.push(book);
+
+    uiController.renderBooks();
+  };
+
+  const removeBookFromLibrary = (id) => {
+    books = books.filter((item) => item.id != id);
+
+    uiController.renderBooks();
+  };
+
+  const createBook = (e) => {
+    e.preventDefault();
+
+    const form = document.querySelector('.book-form');
+
+    const bookData = {};
+
+    Array.from(form.querySelectorAll('.form-input')).forEach((item) => {
+      bookData[item.id] = item.value;
+    });
+
+    addBookToLibrary(bookData);
+    uiController.hideModal();
+  };
+
+  return { getBooks, createBook, removeBookFromLibrary };
+})();
+
+const uiController = (function () {
+  const shelf = document.querySelector('.shelf');
+  const button = document.querySelector('.add-button');
+
+  const modalLayout = `
+  <div class="modal-wrapper">
       <div class="modal">
       </div>
     </div>`;
 
-const formLayout = `
+  const formLayout = `
         <form class="book-form">
           <fieldset>
             <legend>Book data</legend>
@@ -51,57 +122,36 @@ const formLayout = `
           <button type="submit" class="form-button">Add Book</button>
         </form>`;
 
-const shelf = document.querySelector('.shelf');
-const button = document.querySelector('.add-button');
+  const showModal = () => {
+    const modal = document.createElement('div');
+    const form = document.createElement('div');
 
-let books = [
-  {
-    id: 1,
-    name: 'Harry Potter',
-    author: 'Joan Rolling',
-    pages: 295,
-    read: false,
-  },
-  {
-    id: 2,
-    name: 'The Lord of the Rings',
-    author: 'Tolkien',
-    pages: 500,
-    read: true,
-  },
-];
+    modal.innerHTML = modalLayout;
+    form.innerHTML = formLayout;
 
-function Book(name, author, pages) {
-  this.id = crypto.randomUUID();
-  this.name = name;
-  this.author = author;
-  this.pages = pages;
-  this.read = false;
-}
+    modal.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-wrapper')) {
+        modal.remove();
+      }
+    });
 
-books.forEach((item) => Object.setPrototypeOf(item, Book.prototype));
+    form.addEventListener('submit', library.createBook);
 
-Book.prototype.changeReadStatus = function () {
-  this.read = !this.read;
-};
+    modal.querySelector('.modal').append(form);
 
-function addBookToLibrary({ name, author, pages }) {
-  const book = new Book(name, author, pages);
-  books.push(book);
+    document.body.insertBefore(modal, document.querySelector('script'));
+  };
 
-  renderBooks();
-}
+  const hideModal = () => {
+    const modal = document.querySelector('.modal-wrapper');
 
-function removeBookFromLibrary(id) {
-  books = books.filter((item) => item.id != id);
+    modal.remove();
+  };
 
-  renderBooks();
-}
-
-function createBookCard(id, name, author, pages, read) {
-  const el = document.createElement('article');
-  el.classList.add('book-card');
-  el.innerHTML = `
+  const createBookCard = (id, name, author, pages, read) => {
+    const el = document.createElement('article');
+    el.classList.add('book-card');
+    el.innerHTML = `
     <h2>${name}</h2>
     <h3>${author}</h3>
     <span>pages: ${pages}</span>
@@ -110,70 +160,41 @@ function createBookCard(id, name, author, pages, read) {
     <button class="change-status">Change status</button>
   `;
 
-  el.querySelector('.remove-button').addEventListener('click', () =>
-    removeBookFromLibrary(id)
-  );
-
-  el.querySelector('.change-status').addEventListener('click', () => {
-    const book = books.find((item) => item.id == id);
-
-    book.changeReadStatus();
-    renderBooks();
-  });
-
-  return el;
-}
-
-function renderBooks() {
-  shelf.innerHTML = '';
-
-  books.forEach((item) => {
-    const bookCard = createBookCard(
-      item.id,
-      item.name,
-      item.author,
-      item.pages,
-      item.read
+    el.querySelector('.remove-button').addEventListener('click', () =>
+      library.removeBookFromLibrary(id)
     );
 
-    shelf.append(bookCard);
-  });
-}
+    el.querySelector('.change-status').addEventListener('click', () => {
+      const book = library.getBooks().find((item) => item.id == id);
 
-function handleSubmit(e) {
-  e.preventDefault();
+      book.changeReadStatus();
+      renderBooks();
+    });
 
-  const modal = document.querySelector('.modal-wrapper');
-  const form = document.querySelector('.book-form');
+    return el;
+  };
 
-  const bookData = {};
+  const renderBooks = () => {
+    shelf.innerHTML = '';
 
-  Array.from(form.querySelectorAll('.form-input')).forEach((item) => {
-    bookData[item.id] = item.value;
-  });
+    library.getBooks().forEach((item) => {
+      const bookCard = createBookCard(
+        item.id,
+        item.name,
+        item.author,
+        item.pages,
+        item.read
+      );
 
-  addBookToLibrary(bookData);
-  modal.remove();
-}
+      shelf.append(bookCard);
+    });
+  };
 
-button.addEventListener('click', () => {
-  const modal = document.createElement('div');
-  const form = document.createElement('div');
-
-  modal.innerHTML = modalLayout;
-  form.innerHTML = formLayout;
-
-  modal.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal-wrapper')) {
-      modal.remove();
-    }
+  button.addEventListener('click', () => {
+    showModal();
   });
 
-  form.addEventListener('submit', handleSubmit);
+  return { renderBooks, showModal, hideModal };
+})();
 
-  modal.querySelector('.modal').append(form);
-
-  document.body.insertBefore(modal, document.querySelector('script'));
-});
-
-renderBooks();
+uiController.renderBooks();
